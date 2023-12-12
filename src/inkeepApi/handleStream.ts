@@ -78,13 +78,11 @@ export async function handleStream({
           const inkeepContentChunk = messageChunkResult.data;
           chat_session_id = inkeepContentChunk.chat_session_id;
           completeContent += inkeepContentChunk.content_chunk;
-          console.log("content_chunk", inkeepContentChunk.content_chunk); // Add this line
-          console.log("completeContent after concatenation", completeContent); // And this line
           onChunk?.(inkeepContentChunk);
           break;
         }
         default:
-          console.log("Unhandled event type:", result.data.event);
+          break;
       }
     } else {
       console.error("Invalid streamedEvent:", result.error);

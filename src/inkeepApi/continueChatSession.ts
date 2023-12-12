@@ -6,7 +6,6 @@ import {
 } from "./handleStream";
 import { InkeepApiClient } from "./inkeepClient";
 
-
 // Define the type for the request body
 export interface ContinueChatInput {
   integration_id: string;
@@ -20,7 +19,11 @@ interface ContinueChatArgs {
   callbacks: InkeepChatResultCallbacks;
 }
 
-export async function continueChat({ input, client, callbacks }: ContinueChatArgs) {
+export async function continueChat({
+  input,
+  client,
+  callbacks,
+}: ContinueChatArgs) {
   const { onError, ...expectedCallbacks } = callbacks;
   try {
     const response = await client.fetch({

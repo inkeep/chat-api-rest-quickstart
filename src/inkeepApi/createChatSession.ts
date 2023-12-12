@@ -20,7 +20,11 @@ interface CreateChatSessionArgs {
   callbacks: InkeepChatResultCallbacks;
 }
 
-export async function createChatSession({ input, client, callbacks }: CreateChatSessionArgs) {
+export async function createChatSession({
+  input,
+  client,
+  callbacks,
+}: CreateChatSessionArgs) {
   const { onError, ...expectedCallbacks } = callbacks;
   try {
     // Send the request to the Inkeep API
