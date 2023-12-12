@@ -1,0 +1,19 @@
+{
+  "name": "inkeep-rest-api-quickstart",
+  "module": "index.ts",
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "eventsource-parser": "^1.1.1"
+  },
+  "scripts": {
+    "dev": "ts-node src/example.ts",
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "example": "ts-node src/example.ts"
+  }
+}
