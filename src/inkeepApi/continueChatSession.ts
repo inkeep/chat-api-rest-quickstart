@@ -1,12 +1,11 @@
-import { createParser } from "eventsource-parser";
 import { TextDecoderStream } from "node:stream/web";
-import { ReadableStream } from "stream/web";
 import {
-  CallbackFunctions,
-  InkeepContentChunk,
+  InkeepChatResultCallbacks,
   Message,
   handleStream,
-} from "./common";
+} from "./handleStream";
+import { InkeepApiClient } from "./inkeepClient";
+
 
 // Define the type for the request body
 export interface ContinueChatInput {
@@ -17,25 +16,25 @@ export interface ContinueChatInput {
 
 interface ContinueChatArgs {
   input: ContinueChatInput;
-  apiKey: string;
-  callbacks: CallbackFunctions;
+  client: InkeepApiClient;
+  callbacks: InkeepChatResultCallbacks;
 }
 
-export async function continueChat({ input, apiKey, callbacks }: ContinueChatArgs) {
+export async function continueChat({ input, client, callbacks }: ContinueChatArgs) {
   const { onError, ...expectedCallbacks } = callbacks;
   try {
-    // Send the request to the Inkeep API
-    const response = await fetch(
-      `https://api.inkeep.com/v1/chat_sessions/${input.chat_session_id}/chat_results`,
-      {
+    const response = await client.fetch({
+      path: `/chat_sessions/${input.chat_session_id}/chat_results`,
+      body: input,
+      options: {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(input),
-      }
-    );
+      },
+    });
+
+    if (!response.ok) {
+      onError?.(new Error(`HTTP error! status: ${response.status}`));
+      return;
+    }
 
     if (response.body) {
       // Create a TextDecoderStream to decode the SSE

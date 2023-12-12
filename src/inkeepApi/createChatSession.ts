@@ -1,12 +1,10 @@
-import { createParser } from "eventsource-parser";
 import { TextDecoderStream } from "node:stream/web";
-import { ReadableStream } from "stream/web";
 import {
-  CallbackFunctions,
-  InkeepContentChunk,
+  InkeepChatResultCallbacks,
   Message,
   handleStream,
-} from "./common";
+} from "./handleStream";
+import { InkeepApiClient } from "./inkeepClient";
 
 // Define the type for the request body
 export interface CreateChatSessionInput {
@@ -18,25 +16,26 @@ export interface CreateChatSessionInput {
 
 interface CreateChatSessionArgs {
   input: CreateChatSessionInput;
-  apiKey: string;
-  callbacks: CallbackFunctions;
+  client: InkeepApiClient;
+  callbacks: InkeepChatResultCallbacks;
 }
 
-export async function createChatSession({ input, apiKey, callbacks }: CreateChatSessionArgs) {
+export async function createChatSession({ input, client, callbacks }: CreateChatSessionArgs) {
   const { onError, ...expectedCallbacks } = callbacks;
   try {
     // Send the request to the Inkeep API
-    const response = await fetch(
-      "https://api.inkeep.com/v1/chat_sessions/chat_results",
-      {
+    const response = await client.fetch({
+      path: "/chat_sessions/chat_results",
+      body: input,
+      options: {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(input),
-      }
-    );
+      },
+    });
+
+    if (!response.ok) {
+      onError?.(new Error(`HTTP error! status: ${response.status}`));
+      return;
+    }
 
     if (response.body) {
       // Create a TextDecoderStream to decode the SSE
