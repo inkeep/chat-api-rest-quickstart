@@ -14,20 +14,24 @@ export type Message = {
 const InkeepChatResultEventSchema = z.object({
   type: z.string(),
   event: z.string(),
-  data: z.unknown(), // equivalent to 'any' in TypeScript
+  data: z.string(), // equivalent to 'any' in TypeScript
 });
 
 // Define the schema for InkeepMessageChunkData
 const InkeepMessageChunkDataSchema = z.object({
   chat_session_id: z.string(),
   content_chunk: z.string(),
+  finish_reason: z.union([z.string(), z.null()]).optional(),
 });
 
-// Extend the base schema to create the schema for InkeepMessageChunkEvent
 const InkeepMessageChunkEventSchema = InkeepChatResultEventSchema.extend({
   type: z.literal("event"),
   event: z.literal("message_chunk"),
-  data: InkeepMessageChunkDataSchema,
+  data: z.string().transform((str) => {
+    const parsedData = JSON.parse(str);
+    const result = InkeepMessageChunkDataSchema.parse(parsedData);
+    return result;
+  }),
 });
 
 export type InkeepChatResultEvent = z.infer<typeof InkeepChatResultEventSchema>;
@@ -63,30 +67,22 @@ export async function handleStream({
   let chat_session_id = "";
 
   const parser = createParser((streamedEvent) => {
-
-    console.log("streamedEvent", streamedEvent);
     const result = InkeepChatResultEventSchema.safeParse(streamedEvent);
 
-    console.log("result", result); 
     if (result.success) {
-      console.log("result.data", result.data)
-      console.log("result.data.event", result.data.event)
       switch (result.data.event) {
         case "message_chunk": {
-          const messageChunkResult = InkeepMessageChunkEventSchema.safeParse(result.data);
-          console.log("messageChunkResult", messageChunkResult);
-          if (messageChunkResult.success) {
-            console.log("messageChunkResult.data", messageChunkResult.data);
-            const inkeepContentChunk = messageChunkResult.data.data;
-            chat_session_id = inkeepContentChunk.chat_session_id;
-            completeContent += inkeepContentChunk.content_chunk;
-            console.log("content_chunk", inkeepContentChunk.content_chunk); // Add this line
-            console.log("completeContent after concatenation", completeContent); // And this line
-            onChunk?.(inkeepContentChunk);
-          }
+          const messageChunkResult = InkeepMessageChunkEventSchema.parse(
+            result.data
+          );
+          const inkeepContentChunk = messageChunkResult.data;
+          chat_session_id = inkeepContentChunk.chat_session_id;
+          completeContent += inkeepContentChunk.content_chunk;
+          console.log("content_chunk", inkeepContentChunk.content_chunk); // Add this line
+          console.log("completeContent after concatenation", completeContent); // And this line
+          onChunk?.(inkeepContentChunk);
           break;
         }
-        // Add more cases as needed
         default:
           console.log("Unhandled event type:", result.data.event);
       }
@@ -118,4 +114,3 @@ export async function handleStream({
 
   parser.reset();
 }
-

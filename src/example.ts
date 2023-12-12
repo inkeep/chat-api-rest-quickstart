@@ -78,8 +78,8 @@ async function main() {
       },
     };
 
-    console.log("---Continuing chat session...");
-    continueChat({ input: continueInput, client, callbacks });
+    // console.log("---Continuing chat session...");
+    // continueChat({ input: continueInput, client, callbacks });
   } catch (error) {
     console.error(`Error: ${(error as Error).message}`);
   }
