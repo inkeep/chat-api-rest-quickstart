@@ -1,4 +1,4 @@
-import { createParser } from "eventsource-parser";
+import { createParser, ParseEvent } from "eventsource-parser";
 import { TextDecoderStream } from "node:stream/web";
 import { ReadableStream } from "stream/web";
 import { z } from "zod";
@@ -10,36 +10,15 @@ export type Message = {
   content: string;
 };
 
-// Define the base schema
-const InkeepChatResultEventSchema = z.object({
-  type: z.string(),
-  event: z.string(),
-  data: z.string(), // equivalent to 'any' in TypeScript
-});
-
-// Define the schema for InkeepMessageChunkData
+// Schema for an Inkeep Message Chunk
 const InkeepMessageChunkDataSchema = z.object({
   chat_session_id: z.string(),
   content_chunk: z.string(),
   finish_reason: z.union([z.string(), z.null()]).optional(),
 });
 
-const InkeepMessageChunkEventSchema = InkeepChatResultEventSchema.extend({
-  type: z.literal("event"),
-  event: z.literal("message_chunk"),
-  data: z.string().transform((str) => {
-    const parsedData = JSON.parse(str);
-    const result = InkeepMessageChunkDataSchema.parse(parsedData);
-    return result;
-  }),
-});
-
-export type InkeepChatResultEvent = z.infer<typeof InkeepChatResultEventSchema>;
 export type InkeepMessageChunkData = z.infer<
   typeof InkeepMessageChunkDataSchema
->;
-export type InkeepMessageChunkEvent = z.infer<
-  typeof InkeepMessageChunkEventSchema
 >;
 
 export type InkeepCompleteMessage = {
@@ -66,16 +45,13 @@ export async function handleStream({
   let completeContent = "";
   let chat_session_id = "";
 
-  const parser = createParser((streamedEvent) => {
-    const result = InkeepChatResultEventSchema.safeParse(streamedEvent);
-
-    if (result.success) {
-      switch (result.data.event) {
+  const parser = createParser((serverEvent: ParseEvent) => {
+    if (serverEvent.type === "event") {
+      switch (serverEvent.event) {
         case "message_chunk": {
-          const messageChunkResult = InkeepMessageChunkEventSchema.parse(
-            result.data
+          const inkeepContentChunk = InkeepMessageChunkDataSchema.parse(
+            JSON.parse(serverEvent.data)
           );
-          const inkeepContentChunk = messageChunkResult.data;
           chat_session_id = inkeepContentChunk.chat_session_id;
           completeContent += inkeepContentChunk.content_chunk;
           onChunk?.(inkeepContentChunk);
@@ -84,8 +60,6 @@ export async function handleStream({
         default:
           break;
       }
-    } else {
-      console.error("Invalid streamedEvent:", result.error);
     }
   });
 
@@ -104,7 +78,6 @@ export async function handleStream({
     }
   }
 
-  console.log("completeContent", completeContent);
   onCompleteMessage?.({
     chat_session_id,
     message: { role: "assistant", content: completeContent },
