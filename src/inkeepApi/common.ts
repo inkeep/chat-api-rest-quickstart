@@ -1,6 +1,7 @@
 import { createParser } from "eventsource-parser";
 import { TextDecoderStream } from "node:stream/web";
 import { ReadableStream } from "stream/web";
+declare var window: any;
 
 export type Message = {
   role: "user" | "assistant";
@@ -31,12 +32,9 @@ export type HandleStreamArgs = {
 }
 
 export async function handleStream({ textStream, callbacks: { onChunk, onCompleteMessage } }: HandleStreamArgs) {
-
-  // Initialize an empty string to store the complete message
   let completeContent = "";
   let chat_session_id = "";
 
-  // Create a parser
   const parser = createParser((event) => {
     if (event.type === "event") {
       const inkeepContentChunk: InkeepContentChunk = JSON.parse(event.data);
@@ -46,14 +44,19 @@ export async function handleStream({ textStream, callbacks: { onChunk, onComplet
     }
   });
 
-  // Feed the chunks to the parser
-  for await (const chunk of textStream) {
-    parser.feed(chunk);
+  if (typeof window === 'undefined') { // Node.js environment
+    for await (const chunk of textStream) {
+      parser.feed(chunk);
+    }
+  } else { // Browser environment
+    const reader = textStream.getReader();
+    let result;
+    while (!(result = await reader.read()).done) {
+      const chunk = new TextDecoder().decode(result.value);
+      parser.feed(chunk);
+    }
   }
 
-  // Call the onCompleteMessage callback
   onCompleteMessage?.({ chat_session_id, message: { role: 'assistant', content: completeContent } });
-
-  // Reset the parser if you want to re-use it
   parser.reset();
 }

@@ -1,6 +1,6 @@
-import { CreateChatSessionInput, createChatSession } from './createChatSession';
-import { ContinueChatInput, continueChat } from './continueChatSession';
-import { CallbackFunctions, CompleteMessage, InkeepContentChunk } from './common';
+import { CreateChatSessionInput, createChatSession } from './inkeepApi/createChatSession';
+import { ContinueChatInput, continueChat } from './inkeepApi/continueChatSession';
+import { CallbackFunctions, CompleteMessage, InkeepContentChunk } from './inkeepApi/common';
 
 async function main() {
   // Hard code an example request body for createChatSession
