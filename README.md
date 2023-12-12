@@ -1,15 +1,33 @@
-# inkeep-rest-api-quickstart
+# Inkeep REST API Quickstart
 
-To install dependencies:
+This guide will help you get started with the Inkeep REST API.
+
+## Getting Started
+
+1. Fork the [Inkeep REST API Quickstart](https://github.com/inkeep/chat-api-rest-quickstart.git) repository.
+
+2. Clone the forked repository to your local machine.
+
+3. Navigate to the project directory and install the necessary dependencies by running:
 
 ```bash
-bun install
+npm install
 ```
 
-To run:
+4. Copy the `.env.local.example` file and rename it to `.env.local`. Fill in the `INKEEP_API_KEY` and `INKEEP_INTEGRATION_ID` values. These are necessary for the API to function correctly.
 
 ```bash
-bun run index.ts
+cp .env.local.example .env.local
 ```
 
-This project was created using `bun init` in bun v1.0.12. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+5. Open the `.env.local` file and replace `xxxx` with your actual `INKEEP_API_KEY` and `INKEEP_INTEGRATION_ID`.
+
+## Running the Example
+
+The `example.ts` file in the `src` directory provides an example of how to call the Inkeep API.
+
+To run the example, use the following command:
+
+```bash
+npm run example
+```
