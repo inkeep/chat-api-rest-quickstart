@@ -1,15 +1,11 @@
 import {
-  CreateChatSessionInput,
-  createChatSession,
-} from "./inkeepApi/createChatSession";
-import {
   ContinueChatInput,
-  continueChat,
-} from "./inkeepApi/continueChatSession";
-import {
+  CreateChatSessionInput,
   InkeepApiClient,
   InkeepChatResultCallbacks,
   InkeepCompleteMessage,
+  continueChat,
+  createChatSession,
 } from "./inkeepApi";
 
 async function main() {
