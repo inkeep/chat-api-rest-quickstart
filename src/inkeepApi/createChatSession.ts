@@ -1,7 +1,7 @@
 import { TextDecoderStream } from "node:stream/web";
 import {
   InkeepChatResultCallbacks,
-  Message,
+  InkeepMessage,
   handleStream,
 } from "./handleStream";
 import { InkeepApiClient } from "./inkeepClient";
@@ -9,8 +9,9 @@ import { InkeepApiClient } from "./inkeepClient";
 // Define the type for the request body
 export interface CreateChatSessionInput {
   integration_id: string;
+  chat_mode?: "auto" | "turbo"; // default: 'auto'
   chat_session: {
-    messages: Array<Message>;
+    messages: Array<InkeepMessage>;
   };
 }
 

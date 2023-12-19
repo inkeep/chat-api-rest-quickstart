@@ -7,6 +7,9 @@ import {
   continueChat,
   createChatSession,
 } from "./inkeepApi";
+import * as dotenv from "dotenv";
+
+dotenv.config(); // load env, specific to node
 
 async function main() {
   if (!process.env.INKEEP_API_KEY || !process.env.INKEEP_INTEGRATION_ID) {
@@ -24,23 +27,24 @@ async function main() {
         },
       ],
     },
+    chat_mode:
+      (process.env.INKEEP_CHAT_MODE as CreateChatSessionInput["chat_mode"]) ||
+      "auto",
   };
-
-  console.log("api key", process.env.INKEEP_API_KEY);
-  console.log("integration id", process.env.INKEEP_INTEGRATION_ID);
 
   const client = new InkeepApiClient(process.env.INKEEP_API_KEY);
 
   const callbacks: InkeepChatResultCallbacks = {
     onChunk: (chunk) => {
-      console.log("Received chunk: ", chunk);
+      // console.log("Received chunk: ", chunk);
     },
     onCompleteMessage: (completeMessage) => {
-      console.log("Chat Session ID: ", completeMessage.chat_session_id);
-      console.log(
-        "Complete message content: ",
-        completeMessage.message.content
-      );
+      console.log("-ON COMPLETED MESSAGE-");
+      console.log(JSON.stringify(completeMessage, null, 2));
+    },
+    onRecordsCited: (recordsCited) => {
+      console.log("-ON RECORDS CITED-");
+      console.log(JSON.stringify(recordsCited, null, 2));
     },
     onError: (error) => {
       console.error(`Error: ${error.message}`);
@@ -48,7 +52,7 @@ async function main() {
   };
 
   try {
-    console.log("---Starting chat session...");
+    console.log("------STARTING NEW CHAT SESSION------");
 
     const chatSessionPromise = new Promise<InkeepCompleteMessage>(
       (resolve, reject) => {
@@ -81,7 +85,7 @@ async function main() {
       },
     };
 
-    console.log("---Continuing chat session...");
+    console.log("------CONTINUING NEW CHAT SESSION------");
     continueChat({ input: continueInput, client, callbacks });
   } catch (error) {
     console.error(`Error: ${(error as Error).message}`);

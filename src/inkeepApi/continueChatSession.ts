@@ -1,7 +1,7 @@
 import { TextDecoderStream } from "node:stream/web";
 import {
   InkeepChatResultCallbacks,
-  Message,
+  InkeepMessage,
   handleStream,
 } from "./handleStream";
 import { InkeepApiClient } from "./inkeepClient";
@@ -10,7 +10,7 @@ import { InkeepApiClient } from "./inkeepClient";
 export interface ContinueChatInput {
   integration_id: string;
   chat_session_id: string;
-  message: Message;
+  message: InkeepMessage;
 }
 
 interface ContinueChatArgs {
