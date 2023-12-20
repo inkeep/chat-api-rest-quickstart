@@ -27,6 +27,7 @@ async function main() {
         },
       ],
     },
+    stream: true,
     chat_mode:
       (process.env.INKEEP_CHAT_MODE as CreateChatSessionInput["chat_mode"]) ||
       "auto",
@@ -83,6 +84,7 @@ async function main() {
         role: "user",
         content: "What's next?",
       },
+      stream: true,
     };
 
     console.log("------CONTINUING NEW CHAT SESSION------");

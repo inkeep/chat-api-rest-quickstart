@@ -13,6 +13,7 @@ export interface CreateChatSessionInput {
   chat_session: {
     messages: Array<InkeepMessage>;
   };
+  stream?: boolean; // default: false
 }
 
 interface CreateChatSessionArgs {
