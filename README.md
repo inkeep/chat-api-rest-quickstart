@@ -29,5 +29,5 @@ The `index.ts` file in the `src` directory provides an example of how to call th
 To run the example, use the following command:
 
 ```bash
-npm run example
+npm run dev
 ```
