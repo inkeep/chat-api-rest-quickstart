@@ -24,7 +24,7 @@ cp .env.local.example .env.local
 
 ## Running the Example
 
-The `example.ts` file in the `src` directory provides an example of how to call the Inkeep API.
+The `index.ts` file in the `src` directory provides an example of how to call the Inkeep API and handle both streamed and standard responses.
 
 To run the example, use the following command:
 
