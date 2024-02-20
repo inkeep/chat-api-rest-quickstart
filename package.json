@@ -7,14 +7,13 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "dotenv": "^16.3.1",
-    "eventsource-parser": "^1.1.1",
-    "zod": "^3.22.4"
+    "@inkeep/ai-api": "latest",
+    "dotenv": "^16.3.1"
   },
   "scripts": {
-    "dev": "ts-node src/example.ts",
-    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
     "build": "tsc",
-    "example": "ts-node src/example.ts"
+    "start": "node dist/index.js",
+    "example": "ts-node src/index.ts"
   }
 }
